@@ -8,14 +8,13 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/VGMPlay/chips
 
 LOCAL_ARM_MODE   := arm
-LOCAL_CFLAGS     += -DDISABLE_HW_SUPPORT -DENABLE_ALL_CORES -DADDITIONAL_FORMATS
+LOCAL_CFLAGS     += -DDISABLE_HW_SUPPORT -DENABLE_ALL_CORES
 LOCAL_LDLIBS     := -llog -lz
 
 LOCAL_SRC_FILES := \
 		VGMPlay/ChipMapper.c \
 		VGMPlay/Stream.c \
 		VGMPlay/VGMPlay.c \
-		VGMPlay/VGMPlay_AddFmts.c \
 		VGMPlay/chips/262intf.c \
 		VGMPlay/chips/2151intf.c \
 		VGMPlay/chips/2203intf.c \
