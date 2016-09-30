@@ -13,7 +13,6 @@ LOCAL_LDLIBS     := -llog -lz
 
 LOCAL_SRC_FILES := \
 		VGMPlay/ChipMapper.c \
-		VGMPlay/Stream.c \
 		VGMPlay/VGMPlay.c \
 		VGMPlay/chips/262intf.c \
 		VGMPlay/chips/2151intf.c \
