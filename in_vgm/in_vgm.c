@@ -1,6 +1,6 @@
 // Winamp VGM input plug-in
 // ------------------------
-// Programmed by Valley Bell, 2011-2014
+// Programmed by Valley Bell, 2011-2017
 //
 // Made using the Example .RAW plug-in by Justin Frankel and
 // small parts (mainly dialogues) of the old in_vgm 0.35 by Maxim.
@@ -429,12 +429,6 @@ void LoadConfigurationFile(void)
 	sprintf(TempStr, "%s Boost WaveCh", ChipName);
 	ReadIntoBitfield2("ChipOpts", TempStr, &TempCOpt->SpecialFlags, 0, 1);
 	
-	sprintf(TempStr, "%s Reduce NoiseCh", ChipName);
-	ReadIntoBitfield2("ChipOpts", TempStr, &TempCOpt->SpecialFlags, 1, 1);
-	
-	sprintf(TempStr, "%s Inaccurate", ChipName);
-	ReadIntoBitfield2("ChipOpts", TempStr, &TempCOpt->SpecialFlags, 2, 1);
-	
 	// NES
 	ChipName = GetChipName(0x14);	TempCOpt = &ChipOpts[0x00].NES;
 	TempCOpt->SpecialFlags &= 0x7FFF;
@@ -601,12 +595,6 @@ void SaveConfigurationFile(void)
 	ChipName = GetChipName(0x13);	TempCOpt = &ChipOpts[0x00].GameBoy;
 	sprintf(TempStr, "%s Boost WaveCh", ChipName);
 	WriteFromBitfield("ChipOpts", TempStr, TempCOpt->SpecialFlags, 0, 1);
-	
-	sprintf(TempStr, "%s Reduce NoiseCh", ChipName);
-	WriteFromBitfield("ChipOpts", TempStr, TempCOpt->SpecialFlags, 1, 1);
-	
-	sprintf(TempStr, "%s Inaccurate", ChipName);
-	WriteFromBitfield("ChipOpts", TempStr, TempCOpt->SpecialFlags, 2, 1);
 	
 	// NES
 	ChipName = GetChipName(0x14);	TempCOpt = &ChipOpts[0x00].NES;
@@ -861,12 +849,24 @@ int GetFileLength(VGM_HEADER* FileHead)
 {
 	UINT32 SmplCnt;
 	UINT32 MSecCnt;
+	INT32 LoopCnt;
 	
-	if (! VGMMaxLoopM && FileHead->lngLoopSamples)
+	if (FileHead == &VGMHead)
+	{
+		LoopCnt = VGMMaxLoopM;
+	}
+	else
+	{
+		LoopCnt = (VGMMaxLoop * FileHead->bytLoopModifier + 0x08) / 0x10 - FileHead->bytLoopBase;
+		if (LoopCnt < 0x01)
+			LoopCnt = 0x01;
+	}
+	
+	if (! LoopCnt && FileHead->lngLoopSamples)
 		return -1000;
 	
 	// Note: SmplCnt is ALWAYS 44.1 KHz, VGM's native sample rate
-	SmplCnt = FileHead->lngTotalSamples + FileHead->lngLoopSamples * (VGMMaxLoopM - 0x01);
+	SmplCnt = FileHead->lngTotalSamples + FileHead->lngLoopSamples * (LoopCnt - 0x01);
 	if (FileHead == &VGMHead)
 		MSecCnt = CalcSampleMSec(SmplCnt, 0x02);
 	else
@@ -976,6 +976,14 @@ void GetFileInfo(const in_char* filename, in_char* title, int* length_in_ms)
 	VGM_HEADER FileHead;
 	GD3_TAG FileTag;
 	const wchar_t* Tag_TrackName;
+	
+#if 0
+	{
+		char MsgStr[MAX_PATH * 2];
+		sprintf(MsgStr, "Calling GetFileInfo() with file:\n%ls", filename);
+		MessageBoxA(WmpMod.hMainWindow, MsgStr, WmpMod.description, MB_ICONINFORMATION | MB_OK);
+	}
+#endif
 	
 	// Note: If filename is be null OR of length zero, return info about the current file.
 	if (filename == NULL || filename[0x00] == '\0')

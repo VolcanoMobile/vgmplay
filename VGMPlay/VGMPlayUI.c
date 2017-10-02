@@ -144,6 +144,7 @@ extern bool FMForce;
 //extern bool FMAccurate;
 extern bool FMBreakFade;
 extern float FMVol;
+extern bool FMOPL2Pan;
 
 extern CHIPS_OPTION ChipOpts[0x02];
 
@@ -768,7 +769,9 @@ static void cls(void)
 	// put the cursor at (0, 0)
 	bSuccess = SetConsoleCursorPosition(hConsole, coordScreen);
 #else
-	system("clear");
+	int retVal;
+	
+	retVal = system("clear");
 #endif
 	
 	return;
@@ -1171,6 +1174,10 @@ static void ReadOptions(const char* AppName)
 				{
 					FMVol = (float)strtod(RStr, NULL);
 				}
+				else if (! stricmp_u(LStr, "FMOPL2Pan"))
+				{
+					FMOPL2Pan = GetBoolFromStr(RStr);
+				}
 				/*else if (! stricmp_u(LStr, "AccurateFM"))
 				{
 					FMAccurate = GetBoolFromStr(RStr);
@@ -1444,18 +1451,6 @@ static void ReadOptions(const char* AppName)
 							TempFlag = GetBoolFromStr(RStr);
 							TempCOpt->SpecialFlags &= ~(0x01 << 0);
 							TempCOpt->SpecialFlags |= TempFlag << 0;
-						}
-						else if (! stricmp_u(LStr, "LowerNoiseChn"))
-						{
-							TempFlag = GetBoolFromStr(RStr);
-							TempCOpt->SpecialFlags &= ~(0x01 << 1);
-							TempCOpt->SpecialFlags |= TempFlag << 1;
-						}
-						else if (! stricmp_u(LStr, "Inaccurate"))
-						{
-							TempFlag = GetBoolFromStr(RStr);
-							TempCOpt->SpecialFlags &= ~(0x01 << 2);
-							TempCOpt->SpecialFlags |= TempFlag << 2;
 						}
 						break;
 					case 0x14:	// NES
@@ -2293,7 +2288,7 @@ static void PlayVGM_UI(void)
 #endif
 		}
 #ifndef WIN32
-		if (! PausePlay)
+		if (! PausePlay && PlayingMode != 0x01)
 			WaveOutLinuxCallBack();
 		else
 			Sleep(100);
