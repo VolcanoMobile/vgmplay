@@ -81,6 +81,7 @@ LOCAL_SRC_FILES := \
 		VGMPlay/chips/ym2413.c \
 		VGMPlay/chips/ym2413hd.c \
 		VGMPlay/chips/ym2612.c \
+		VGMPlay/chips/ym3438.c \
 		VGMPlay/chips/ymdeltat.c \
 		VGMPlay/chips/ymf262.c \
 		VGMPlay/chips/ymf271.c \
